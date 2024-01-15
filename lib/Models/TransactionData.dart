@@ -134,12 +134,12 @@ class Meta {
 
   factory Meta.fromJson(Map<String, dynamic> json) => Meta(
         currentPage: json["current_page"],
-        from: json["from"],
+        from: json["from"] ?? 0,
         lastPage: json["last_page"],
         links: List<Link>.from(json["links"].map((x) => Link.fromJson(x))),
         path: json["path"],
         perPage: json["per_page"],
-        to: json["to"],
+        to: json["to"] ?? 0,
         total: json["total"],
       );
 

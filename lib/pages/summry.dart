@@ -1,6 +1,8 @@
 import 'dart:async';
 
-import 'package:audioplayers/audioplayers.dart';
+//all the vars that use audioplayer package was enabled
+
+// import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
 import 'homelayout.dart';
@@ -17,12 +19,12 @@ class Summry extends StatefulWidget {
 }
 
 class _SummryState extends State<Summry> {
-  AudioPlayer? player;
-  AudioCache? cache;
+  // AudioPlayer? player;
+  // AudioCache? cache;
 
   @override
   void dispose() {
-    player?.dispose();
+    // player?.dispose();
     super.dispose();
   }
 
@@ -59,8 +61,8 @@ class _SummryState extends State<Summry> {
 
   @override
   void initState() {
-    player = AudioPlayer();
-    cache = AudioCache(fixedPlayer: player);
+    // player = AudioPlayer();
+    // cache = AudioCache(fixedPlayer: player);
     start();
 
     super.initState();
@@ -149,11 +151,11 @@ class _SummryState extends State<Summry> {
 
   playMusic(String song) {
     // to play the Audio
-    cache?.play(song);
+    // cache?.play(song);
   }
 
   stopMusic() {
     // to pause the Audio
-    player?.pause();
+    // player?.pause();
   }
 }

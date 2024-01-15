@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 import '../Models/TransactionData.dart';
 import '../Services/Service.dart';
@@ -23,11 +24,13 @@ class _TransactionState extends State<Transaction> {
           FutureBuilder(
               future: Services().getAllTransactions(),
               builder: (BuildContext context, AsyncSnapshot snapshot) {
-                if (snapshot.hasData) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasData) {
                   TransactionData transaction = snapshot.data;
                   return Container(
                     margin: const EdgeInsets.symmetric(vertical: 8),
-                    height: MediaQuery.of(context).size.height * 0.795,
+                    height: MediaQuery.of(context).size.height * 0.788,
                     child: ListView.separated(
                       separatorBuilder: (context, index) => SizedBox(
                         height: MediaQuery.of(context).size.height * 0.01,
@@ -87,7 +90,22 @@ class _TransactionState extends State<Transaction> {
                     ),
                   );
                 }
-                return Center(child: Text('No Data'));
+                return Center(
+                  child: Column(
+                    children: [
+                      Icon(
+                        LucideIcons.archive,
+                        color: Colors.grey.shade300,
+                        size: 64,
+                      ),
+                      Text(
+                        'No Data',
+                        style: TextStyle(
+                            color: Colors.grey.shade300, fontSize: 24),
+                      ),
+                    ],
+                  ),
+                );
               }),
         ],
       ),

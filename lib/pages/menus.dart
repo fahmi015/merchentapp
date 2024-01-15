@@ -1,8 +1,6 @@
-import 'dart:developer';
-
 import 'package:backofficeapp/shared/cached_helper.dart';
 import 'package:flutter/material.dart';
-
+import 'package:lucide_icons/lucide_icons.dart';
 import '../Models/MenuItems.dart';
 import '../Services/Service.dart';
 
@@ -24,13 +22,15 @@ class _MenusState extends State<Menus> {
       body: Column(
         children: [
           Container(
-            height: MediaQuery.of(context).size.height * 0.81,
+            height: MediaQuery.of(context).size.height * 0.805,
             child: FutureBuilder(
                 future: Services().getMenu(),
                 builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  if (snapshot.hasData) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasData) {
                     MenuData menu = snapshot.data;
-
+                    print(menu.data.toString());
                     return ListView.separated(
                         itemCount: menu.data.length,
                         separatorBuilder: (context, index) => SizedBox(
@@ -39,12 +39,13 @@ class _MenusState extends State<Menus> {
                         itemBuilder: (context, index) {
                           return Column(
                             children: [
-                              foodCategory(
-                                  categoryName: menu.data[index].name,
-                                  categoryId: menu.data[index].id,
-                                  SwitchVal: menu.data[index].isActive != 1
-                                      ? SwitchVal = false
-                                      : SwitchVal = true),
+                              if (menu.data[index].products.isNotEmpty)
+                                foodCategory(
+                                    categoryName: menu.data[index].name,
+                                    categoryId: menu.data[index].id,
+                                    SwitchVal: menu.data[index].isActive != 1
+                                        ? SwitchVal = false
+                                        : SwitchVal = true),
                               Container(
                                 margin:
                                     const EdgeInsets.symmetric(horizontal: 16),
@@ -88,7 +89,22 @@ class _MenusState extends State<Menus> {
                           );
                         });
                   }
-                  return Center(child: Text('No Data'));
+                  return Center(
+                    child: Column(
+                      children: [
+                        Icon(
+                          LucideIcons.archive,
+                          color: Colors.grey.shade300,
+                          size: 64,
+                        ),
+                        Text(
+                          'No Data',
+                          style: TextStyle(
+                              color: Colors.grey.shade300, fontSize: 24),
+                        ),
+                      ],
+                    ),
+                  );
                 }),
           ),
         ],
@@ -194,7 +210,7 @@ class _FoodItemState extends State<FoodItem> {
           onChanged: (bool value) {
             setState(() {
               widget.isActive = value;
-              Services().UpdateProductStatus(widget.idMenuItem, token,
+              Services().UpdateProductStatus(widget.idMenuItem,
                   data: widget.isActive);
             });
             // Services().putProductStatus(widget.idMenuItem, widget.access_token,data: {"is_active": '${widget.isActive}'});
