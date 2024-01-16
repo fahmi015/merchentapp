@@ -107,64 +107,64 @@ class _HomeLayoutState extends State<HomeLayout> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-          appBar: AppBar(
-            backgroundColor: isLoading
-                ? storeStatus == 'close'
-                    ? Colors.red
-                    : Colors.green
-                : Colors.grey[300],
-            elevation: 0,
-            title: Padding(
-              padding: const EdgeInsets.only(top: 9, right: 8),
-              child: Directionality(
-                textDirection: TextDirection.ltr,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    isLoading
-                        ? Text(
-                            ' (${storeStatus == 'close' ? "مغلق" : "مفتوح"})',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold),
-                          )
-                        : SizedBox(height: 0),
-                    Text(
-                      ' حالة مطعم',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            actions: [
-              isLoading
-                  ? Padding(
-                      padding: const EdgeInsets.only(left: 25),
-                      child: CupertinoSwitch(
-                        value: storeStatus == 'close' ? false : true,
-                        onChanged: (bool value) {
-                          setState(() {
-                            switchValue = value ?? false;
-                            storeStatus = switchValue ? 'open' : 'close';
-                            Cachehelper.sharedPreferences!
-                                .setString("storeStatus", storeStatus!)
-                                .then((value) {
-                              print('status saved');
-                            });
-                            UpdateStatus(working_status: storeStatus);
-                          });
-                        },
-                      ),
-                    )
-                  : SizedBox(height: 0),
-            ],
-          ),
+          // appBar: AppBar(
+          //   backgroundColor: isLoading
+          //       ? storeStatus == 'close'
+          //           ? Colors.red
+          //           : Colors.green
+          //       : Colors.grey[300],
+          //   elevation: 0,
+          //   title: Padding(
+          //     padding: const EdgeInsets.only(top: 9, right: 8),
+          //     child: Directionality(
+          //       textDirection: TextDirection.ltr,
+          //       child: Row(
+          //         crossAxisAlignment: CrossAxisAlignment.center,
+          //         mainAxisAlignment: MainAxisAlignment.end,
+          //         children: [
+          //           isLoading
+          //               ? Text(
+          //                   ' (${storeStatus == 'close' ? "مغلق" : "مفتوح"})',
+          //                   style: TextStyle(
+          //                       color: Colors.white,
+          //                       fontSize: 20,
+          //                       fontWeight: FontWeight.bold),
+          //                 )
+          //               : SizedBox(height: 0),
+          //           Text(
+          //             ' حالة مطعم',
+          //             style: TextStyle(
+          //                 color: Colors.white,
+          //                 fontSize: 20,
+          //                 fontWeight: FontWeight.bold),
+          //           ),
+          //         ],
+          //       ),
+          //     ),
+          //   ),
+          //   actions: [
+          //     isLoading
+          //         ? Padding(
+          //             padding: const EdgeInsets.only(left: 25),
+          //             child: CupertinoSwitch(
+          //               value: storeStatus == 'close' ? false : true,
+          //               onChanged: (bool value) {
+          //                 setState(() {
+          //                   switchValue = value ?? false;
+          //                   storeStatus = switchValue ? 'open' : 'close';
+          //                   Cachehelper.sharedPreferences!
+          //                       .setString("storeStatus", storeStatus!)
+          //                       .then((value) {
+          //                     print('status saved');
+          //                   });
+          //                   UpdateStatus(working_status: storeStatus);
+          //                 });
+          //               },
+          //             ),
+          //           )
+          //         : SizedBox(height: 0),
+          //   ],
+          // ),
           bottomNavigationBar: BottomNavigationBar(
               showSelectedLabels: true,
               selectedItemColor: Colors.red,

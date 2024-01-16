@@ -56,10 +56,7 @@ class Services {
         Uri.parse('https://api.canariapp.com/v1/partner/merchant/orders/oms');
     final response = await client.get(uri, headers: headers);
     //{status: "confirmation on process"}
-    if (response.statusCode == 200
-        // && orderDataFromJson(response.body).data[0].status == "ready"
-        ) {
-      print(orderDataFromJson(response.body).data[0].status);
+    if (response.statusCode == 200) {
       return orderDataFromJson(response.body);
     }
   }
@@ -129,7 +126,6 @@ class Services {
     };
     var client = http.Client();
     var uri = Uri.parse(
-        // 'https://api.canariapp.com/v1/partner/merchant/oms/$orderId/status',
         'https://api.canariapp.com/v1/partner/merchant/orders/$orderId/status');
 
     final response = await client.put(
@@ -138,12 +134,12 @@ class Services {
       body: isAccpeted
           ? {
               "status": "accepted",
-              // "preparation_time": int.parse(preparationTime),
               "preparation_time": preparationTime,
             }
           : {"status": "non-accepted"},
     );
-    return print('${response.statusCode} ------ ${response.body}');
+    // return print('${response.statusCode} ------ ${response.body}');
+    return print('${response.statusCode} ------');
   }
 
   //Update menus status

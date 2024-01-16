@@ -2,41 +2,80 @@ import 'dart:convert';
 
 import 'package:backofficeapp/components/ordercard.dart';
 import 'package:dotted_line/dotted_line.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../Models/OrderData.dart';
 import '../Services/Service.dart';
 import '../shared/cached_helper.dart';
+import 'package:http/http.dart' as http;
 
 class Orders extends StatefulWidget {
-  bool isLoading;
   Orders({
     Key? key,
-    this.isLoading = false,
   }) : super(key: key);
 
   @override
   State<Orders> createState() => _OrdersState();
 }
 
-bool switchValue = true;
+// bool switchValue = true;
 String? token = Cachehelper.getData(key: "token");
-String? storeStatus = Cachehelper.getData(key: "storeStatus");
-bool isLoading = true;
+// String? storeStatus = Cachehelper.getData(key: "storeStatus");
+// bool isLoading = true;
 
 class _OrdersState extends State<Orders> {
+  /////if doesn't work delete it
+  String? storeStatus;
+  bool isLoading = false;
+  int id = Cachehelper.getData(key: "id");
+  bool switchValue = true;
+
+  Future getStoreData() async {
+    isLoading = false;
+    final response = await http.get(
+      Uri.parse('https://api.canariapp.com/v1/partner/merchant/stores'),
+      headers: {
+        'Authorization': 'Bearer ${token}',
+        'Accept': 'application/json',
+      },
+    ).then((value) {
+      var stores = json.decode(value.body);
+      isLoading = true;
+      print(stores['data'][0]['working_status']);
+      storeStatus = stores['data'][0]['working_status'];
+      Cachehelper.sharedPreferences!
+          .setString("storeStatus", stores['data'][0]['working_status']);
+      setState(() {});
+    }).onError((error, stackTrace) {
+      print(error);
+    });
+    return response;
+  }
+
+  Future UpdateStatus({working_status}) async {
+    print(working_status);
+    final response = await http.put(
+        Uri.parse('https://api.canariapp.com/v1/partner/merchant/stores/${id}'),
+        headers: {
+          'Authorization': 'Bearer ${token}',
+          'Accept': 'application/json',
+        },
+        body: {
+          'working_status': '${working_status}'
+        }).then((value) {
+      var data = json.decode(value.body);
+      print(data);
+    }).onError((error, stackTrace) {
+      print(error);
+    });
+    return response;
+  }
+
+  //
   @override
   void initState() {
-    if (storeStatus == "open") {
-      setState(() {
-        isLoading = false;
-      });
-    } else {
-      setState(() {
-        isLoading = true;
-      });
-    }
-
+    getStoreData();
     super.initState();
   }
 
@@ -49,8 +88,6 @@ class _OrdersState extends State<Orders> {
           title: const Text(
             'طلبات اليوم',
           ),
-          // backgroundColor: storeStatus == 'close' ? Colors.red : Colors.green,
-          // backgroundColor: storeStatus == 'close' ? Colors.red : Colors.green,
           backgroundColor: isLoading
               ? storeStatus == 'close'
                   ? Colors.red
@@ -74,6 +111,28 @@ class _OrdersState extends State<Orders> {
             ],
             labelColor: Colors.white,
           ),
+          actions: [
+            isLoading
+                ? Padding(
+                    padding: const EdgeInsets.only(left: 25),
+                    child: CupertinoSwitch(
+                      value: storeStatus == 'close' ? false : true,
+                      onChanged: (bool value) {
+                        setState(() {
+                          switchValue = value ?? false;
+                          storeStatus = switchValue ? 'open' : 'close';
+                          Cachehelper.sharedPreferences!
+                              .setString("storeStatus", storeStatus!)
+                              .then((value) {
+                            print('status saved');
+                          });
+                          UpdateStatus(working_status: storeStatus);
+                        });
+                      },
+                    ),
+                  )
+                : SizedBox(height: 0),
+          ],
         ),
         body: const TabBarView(
           children: [
@@ -135,119 +194,9 @@ class _WaitingOrdersState extends State<WaitingOrders> {
                   );
                 } else if (snapshot.hasData) {
                   OrderData order = snapshot.data;
-                  // List<OrderData> order = snapshot.data;
-                  // OrderData order = snapshot.data;
-                  // final order = json.decode(snapshot.data.toString());
 
                   String preprationTime = '15';
-                  // return Container(
-                  //   // padding: const EdgeInsets.symmetric(
-                  //   //   horizontal: 8,
-                  //   // ),
-                  //   padding: const EdgeInsets.symmetric(
-                  //     horizontal: 4,
-                  //   ),
-                  //   height: MediaQuery.of(context).size.height * 0.668,
-                  //   child: ListView.separated(
-                  //     itemCount: order.data.length,
-                  //     separatorBuilder: (context, index) => SizedBox(
-                  //       height: MediaQuery.of(context).size.height * 0.01,
-                  //     ),
-                  //     itemBuilder: (context, index) {
-                  //       return Container(
-                  //         padding: EdgeInsets.all(20),
-                  //         decoration: BoxDecoration(
 
-                  //             // border: Border.all(
-                  //             //     color: Colors.grey.shade400, width: 1.5),
-                  //             boxShadow: [
-                  //               BoxShadow(
-                  //                 blurRadius: 10,
-                  //                 color: Colors.grey.shade300,
-                  //                 offset: Offset(10, 10),
-                  //                 spreadRadius: 1,
-                  //               ),
-                  //             ],
-                  //             color: Colors.white,
-                  //             borderRadius: BorderRadius.circular(10)),
-                  //         child: Column(
-                  //           crossAxisAlignment: CrossAxisAlignment.start,
-                  //           children: [
-                  //             orderRef(Ref: order.data[index].orderRef),
-                  //             Container(
-                  //               height: MediaQuery.of(context).size.height *
-                  //                   0.085 *
-                  //                   order.data[index].products.length,
-                  //               child: ListView.builder(
-                  //                   // physics: NeverScrollableScrollPhysics(),
-                  //                   shrinkWrap: true,
-                  //                   itemCount:
-                  //                       order.data[index].products.length,
-                  //                   itemBuilder:
-                  //                       (BuildContext context, int subindex) {
-                  //                     return orderItems(
-                  //                       itemName: order.data[index]
-                  //                           .products[subindex].name,
-                  //                       itemPrice: order.data[index]
-                  //                           .products[subindex].price,
-                  //                       itemquantity: order.data[index]
-                  //                           .products[subindex].quantity,
-                  //                       note:
-                  //                           order.data[index].note.allergyInfo,
-                  //                     );
-                  //                   }),
-                  //             ),
-                  //             total(subTotal: order.data[index].subTotal),
-                  //             PreparationTimeList(
-                  //               onTimeSelected: (String? chosenTime) {
-                  //                 // print('Chosen Time: $chosenTime and ${chosenTime?.substring(0, 2)}');
-                  //                 preprationTime =
-                  //                     "${chosenTime?.substring(0, 2)}";
-                  //               },
-                  //             ),
-                  //             SizedBox(
-                  //               height:
-                  //                   MediaQuery.of(context).size.height * .01,
-                  //             ),
-                  //             Row(
-                  //               mainAxisAlignment:
-                  //                   MainAxisAlignment.spaceAround,
-                  //               children: [
-                  //                 button(
-                  //                   isAccepted: true,
-                  //                   onPressed: () {
-                  //                     Services().putOrdersStatus(
-                  //                       order.data[index].id,
-                  //                       true,
-                  //                       preprationTime,
-                  //                     );
-                  //                     setState(() {
-                  //                       Services().getOrdersIndex();
-                  //                     });
-                  //                     Navigator.pop(context);
-                  //                   },
-                  //                 ),
-                  //                 button(
-                  //                     onPressed: () {
-                  //                       Services().putOrdersStatus(
-                  //                         order.data[index].id,
-                  //                         false,
-                  //                         preprationTime,
-                  //                       );
-                  //                       setState(() {
-                  //                         Services().getOrdersIndex();
-                  //                       });
-                  //                       Navigator.pop(context);
-                  //                     },
-                  //                     isAccepted: false),
-                  //               ],
-                  //             ),
-                  //           ],
-                  //         ),
-                  //       );
-                  //     },
-                  //   ),
-                  // );
                   return Container(
                     // padding: const EdgeInsets.symmetric(
                     //   horizontal: 8,
@@ -263,8 +212,9 @@ class _WaitingOrdersState extends State<WaitingOrders> {
                       ),
                       itemBuilder: (context, index) {
                         if (order.data[index].status ==
-                                "confirmation on process" ||
-                            order.data[index].status == "on process") {
+                                "confirmation on process"
+                            // || order.data[index].status == "on process"
+                            ) {
                           return Container(
                             padding: EdgeInsets.all(20),
                             decoration: BoxDecoration(
@@ -357,7 +307,7 @@ class _WaitingOrdersState extends State<WaitingOrders> {
                             ),
                           );
                         } else {
-                          return Text("walo had lmra hh");
+                          return Center();
                         }
                       },
                     ),
@@ -421,7 +371,8 @@ class _AcceptedOrdersState extends State<AcceptedOrders> {
                         height: MediaQuery.of(context).size.height * 0.01,
                       ),
                       itemBuilder: (context, index) {
-                        if (order.data[index].status == "accpeted") {
+                        if (order.data[index].status == "accpeted" ||
+                            order.data[index].status == "on process") {
                           return Container(
                             padding: EdgeInsets.all(20),
                             decoration: BoxDecoration(
@@ -458,8 +409,9 @@ class _AcceptedOrdersState extends State<AcceptedOrders> {
                                               .data[index].products[ind].price,
                                           itemquantity: order.data[index]
                                               .products[ind].quantity,
-                                          note: order
-                                              .data[index].note.allergyInfo,
+                                          note: order.data[index].note
+                                                  .allergyInfo ??
+                                              '',
                                         );
                                       }),
                                 ),
@@ -467,6 +419,8 @@ class _AcceptedOrdersState extends State<AcceptedOrders> {
                               ],
                             ),
                           );
+                        } else {
+                          return Center();
                         }
                       },
                     ),
@@ -617,24 +571,9 @@ class _PreparedOrdersState extends State<PreparedOrders> {
                               ],
                             ),
                           );
+                        } else {
+                          return Center();
                         }
-                        // return Center(
-                        //   child: Column(
-                        //     children: [
-                        //       // CircularProgressIndicator()
-                        //       Icon(
-                        //         LucideIcons.archive,
-                        //         color: Colors.grey.shade300,
-                        //         size: 64,
-                        //       ),
-                        //       Text(
-                        //         'No Data',
-                        //         style: TextStyle(l
-                        //             color: Colors.grey.shade300, fontSize: 24),
-                        //       ),
-                        //     ],
-                        //   ),
-                        // );
                       },
                     ),
                   );
