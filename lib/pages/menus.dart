@@ -22,7 +22,7 @@ class _MenusState extends State<Menus> {
       body: Column(
         children: [
           Container(
-            height: MediaQuery.of(context).size.height * 0.805,
+            height: MediaQuery.of(context).size.height * 0.92,
             child: FutureBuilder(
                 future: Services().getMenu(),
                 builder: (BuildContext context, AsyncSnapshot snapshot) {

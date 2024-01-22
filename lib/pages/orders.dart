@@ -19,13 +19,9 @@ class Orders extends StatefulWidget {
   State<Orders> createState() => _OrdersState();
 }
 
-// bool switchValue = true;
 String? token = Cachehelper.getData(key: "token");
-// String? storeStatus = Cachehelper.getData(key: "storeStatus");
-// bool isLoading = true;
 
 class _OrdersState extends State<Orders> {
-  /////if doesn't work delete it
   String? storeStatus;
   bool isLoading = false;
   int id = Cachehelper.getData(key: "id");
@@ -137,29 +133,11 @@ class _OrdersState extends State<Orders> {
         body: const TabBarView(
           children: [
             WaitingOrders(),
-            // Testwidget(),
             AcceptedOrders(),
             PreparedOrders(),
           ],
         ),
       ),
-    );
-  }
-}
-
-class Testwidget extends StatefulWidget {
-  const Testwidget({Key? key}) : super(key: key);
-
-  @override
-  State<Testwidget> createState() => _TestwidgetState();
-}
-
-class _TestwidgetState extends State<Testwidget> {
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [],
     );
   }
 }
@@ -204,7 +182,7 @@ class _WaitingOrdersState extends State<WaitingOrders> {
                     padding: const EdgeInsets.symmetric(
                       horizontal: 4,
                     ),
-                    height: MediaQuery.of(context).size.height * 0.668,
+                    height: MediaQuery.of(context).size.height * 0.735,
                     child: ListView.separated(
                       itemCount: order.data.length,
                       separatorBuilder: (context, index) => SizedBox(
@@ -212,9 +190,7 @@ class _WaitingOrdersState extends State<WaitingOrders> {
                       ),
                       itemBuilder: (context, index) {
                         if (order.data[index].status ==
-                                "confirmation on process"
-                            // || order.data[index].status == "on process"
-                            ) {
+                            "confirmation on process") {
                           return Container(
                             padding: EdgeInsets.all(20),
                             decoration: BoxDecoration(
@@ -364,7 +340,7 @@ class _AcceptedOrdersState extends State<AcceptedOrders> {
 
                   return Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
-                    height: MediaQuery.of(context).size.height * 0.665,
+                    height: MediaQuery.of(context).size.height * 0.735,
                     child: ListView.separated(
                       itemCount: order.data.length,
                       separatorBuilder: (context, index) => SizedBox(
@@ -476,7 +452,7 @@ class _PreparedOrdersState extends State<PreparedOrders> {
 
                   return Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
-                    height: MediaQuery.of(context).size.height * 0.665,
+                    height: MediaQuery.of(context).size.height * 0.735,
                     child: ListView.separated(
                       itemCount: order.data.length,
                       separatorBuilder: (context, index) => SizedBox(
