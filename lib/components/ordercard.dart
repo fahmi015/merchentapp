@@ -4,7 +4,8 @@ import '../Services/Service.dart';
 import '../pages/orders.dart';
 
 class OrderCard extends StatefulWidget {
-  int items, orderproducts, orderproductquantity, ordersubTotal, orderid;
+  int items, orderproducts, orderproductquantity, orderid;
+  int ordersubTotal;
   String orderRef, orderproductname, orderproductsprice;
   OrderCard({
     Key? key,

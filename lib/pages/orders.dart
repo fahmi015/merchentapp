@@ -5,7 +5,7 @@ import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import '../Models/OrderData.dart';
+
 import '../Services/Service.dart';
 import '../shared/cached_helper.dart';
 import 'package:http/http.dart' as http;
@@ -30,7 +30,9 @@ class _OrdersState extends State<Orders> {
   Future getStoreData() async {
     isLoading = false;
     final response = await http.get(
-      Uri.parse('https://api.canariapp.com/v1/partner/merchant/stores'),
+      Uri.parse(
+          // 'https://api.canariapp.com/v1/partner/merchant/stores'
+          'https://ws.canzitech.com/v1/partner/merchant/stores'),
       headers: {
         'Authorization': 'Bearer ${token}',
         'Accept': 'application/json',
@@ -51,15 +53,14 @@ class _OrdersState extends State<Orders> {
 
   Future UpdateStatus({working_status}) async {
     print(working_status);
-    final response = await http.put(
-        Uri.parse('https://api.canariapp.com/v1/partner/merchant/stores/${id}'),
-        headers: {
-          'Authorization': 'Bearer ${token}',
-          'Accept': 'application/json',
-        },
-        body: {
-          'working_status': '${working_status}'
-        }).then((value) {
+    final response = await http.put(Uri.parse(
+        // 'https://api.canariapp.com/v1/partner/merchant/stores/${id}'
+        'https://ws.canzitech.com/v1/partner/merchant/stores/${id}'), headers: {
+      'Authorization': 'Bearer ${token}',
+      'Accept': 'application/json',
+    }, body: {
+      'working_status': '${working_status}'
+    }).then((value) {
       var data = json.decode(value.body);
       print(data);
     }).onError((error, stackTrace) {
@@ -171,26 +172,26 @@ class _WaitingOrdersState extends State<WaitingOrders> {
                     ],
                   );
                 } else if (snapshot.hasData) {
-                  OrderData order = snapshot.data;
-
+                  // OrderData order = snapshot.data;
+                  final data = snapshot.data as Map<String, dynamic>;
+                  final order = data['data'] as List<dynamic>;
                   String preprationTime = '15';
 
                   return Container(
-                    // padding: const EdgeInsets.symmetric(
-                    //   horizontal: 8,
-                    // ),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 4,
                     ),
                     height: MediaQuery.of(context).size.height * 0.735,
                     child: ListView.separated(
-                      itemCount: order.data.length,
+                      // itemCount: order.data.length,
+                      itemCount: order.length,
                       separatorBuilder: (context, index) => SizedBox(
                         height: MediaQuery.of(context).size.height * 0.01,
                       ),
                       itemBuilder: (context, index) {
-                        if (order.data[index].status ==
-                            "confirmation on process") {
+                        if (
+                            // order.data[index].status =="confirmation on process"
+                            order[index]['status'] == "confirmed") {
                           return Container(
                             padding: EdgeInsets.all(20),
                             decoration: BoxDecoration(
@@ -209,32 +210,44 @@ class _WaitingOrdersState extends State<WaitingOrders> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                orderRef(Ref: order.data[index].orderRef),
+                                orderRef(
+                                  // Ref: order.data[index].orderRef,
+                                  Ref: order[index]['order_ref'],
+                                ),
                                 Container(
                                   height: MediaQuery.of(context).size.height *
                                       0.085 *
-                                      order.data[index].products.length,
+                                      order[index]['products'].length,
+                                  // order.data[index].products.length,
                                   child: ListView.builder(
                                       // physics: NeverScrollableScrollPhysics(),
                                       shrinkWrap: true,
+                                      // itemCount:order.data[index].products.length,
                                       itemCount:
-                                          order.data[index].products.length,
+                                          order[index]['products'].length,
                                       itemBuilder:
                                           (BuildContext context, int subindex) {
                                         return orderItems(
-                                          itemName: order.data[index]
-                                              .products[subindex].name,
-                                          itemPrice: order.data[index]
-                                              .products[subindex].price,
-                                          itemquantity: order.data[index]
-                                              .products[subindex].quantity,
-                                          note: order.data[index].note
-                                                  .allergyInfo ??
-                                              "",
+                                          // itemName: order.data[index].products[subindex].name,
+                                          itemName: order[index]['products']
+                                              [subindex]['name'],
+                                          // itemPrice: order.data[index].products[subindex].price,
+                                          itemPrice: order[index]['products']
+                                              [subindex]['price'],
+                                          // itemquantity: order.data[index].products[subindex].quantity,
+                                          itemquantity: order[index]['products']
+                                              [subindex]['quantity'],
+                                          // note: order.data[index].note
+                                          //         .allergyInfo ??
+                                          //     "",
+                                          note: "",
                                         );
                                       }),
                                 ),
-                                total(subTotal: order.data[index].subTotal),
+                                total(
+                                  // subTotal: order.data[index].storeTotal
+                                  subTotal: order[index]['store_total'],
+                                ),
                                 PreparationTimeList(
                                   onTimeSelected: (String? chosenTime) {
                                     // print('Chosen Time: $chosenTime and ${chosenTime?.substring(0, 2)}');
@@ -253,8 +266,9 @@ class _WaitingOrdersState extends State<WaitingOrders> {
                                     button(
                                       isAccepted: true,
                                       onPressed: () {
-                                        Services().putOrdersStatus(
-                                          order.data[index].id,
+                                        Services().postOrdersStatus(
+                                          // order.data[index].id,
+                                          order[index]['id'],
                                           true,
                                           preprationTime,
                                         );
@@ -266,8 +280,9 @@ class _WaitingOrdersState extends State<WaitingOrders> {
                                     ),
                                     button(
                                         onPressed: () {
-                                          Services().putOrdersStatus(
-                                            order.data[index].id,
+                                          Services().postOrdersStatus(
+                                            // order.data[index].id,
+                                            order[index]['id'],
                                             false,
                                             preprationTime,
                                           );
@@ -336,19 +351,21 @@ class _AcceptedOrdersState extends State<AcceptedOrders> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasData) {
-                  OrderData order = snapshot.data;
+                  // OrderData order = snapshot.data;
+                  final data = snapshot.data as Map<String, dynamic>;
+                  final order = data['data'] as List<dynamic>;
 
                   return Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     height: MediaQuery.of(context).size.height * 0.735,
                     child: ListView.separated(
-                      itemCount: order.data.length,
+                      itemCount: order.length,
                       separatorBuilder: (context, index) => SizedBox(
                         height: MediaQuery.of(context).size.height * 0.01,
                       ),
                       itemBuilder: (context, index) {
-                        if (order.data[index].status == "accpeted" ||
-                            order.data[index].status == "on process") {
+                        if (order[index]['status'] == "accepted" ||
+                            order[index]['status'] == "on process") {
                           return Container(
                             padding: EdgeInsets.all(20),
                             decoration: BoxDecoration(
@@ -366,32 +383,65 @@ class _AcceptedOrdersState extends State<AcceptedOrders> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                orderRef(Ref: order.data[index].orderRef),
+                                orderRef(Ref: order[index]['order_ref']),
                                 Container(
                                   height: MediaQuery.of(context).size.height *
                                       0.085 *
-                                      order.data[index].products.length,
+                                      order[index]['products'].length,
                                   child: ListView.builder(
                                       physics: NeverScrollableScrollPhysics(),
                                       shrinkWrap: true,
                                       itemCount:
-                                          order.data[index].products.length,
+                                          order[index]['products'].length,
                                       itemBuilder:
                                           (BuildContext context, int ind) {
                                         return orderItems(
-                                          itemName: order
-                                              .data[index].products[ind].name,
-                                          itemPrice: order
-                                              .data[index].products[ind].price,
-                                          itemquantity: order.data[index]
-                                              .products[ind].quantity,
-                                          note: order.data[index].note
-                                                  .allergyInfo ??
-                                              '',
+                                          itemName: order[index]['products']
+                                              [ind]['name'],
+                                          itemPrice: order[index]['products']
+                                              [ind]['price'],
+                                          itemquantity: order[index]['products']
+                                              [ind]['quantity'],
+                                          // note: order.data[index].note
+                                          //         .allergyInfo ??
+                                          //     '',
+                                          note: "",
                                         );
                                       }),
                                 ),
-                                total(subTotal: order.data[index].subTotal),
+                                total(subTotal: order[index]['store_total']),
+                                SizedBox(
+                                    height: MediaQuery.of(context).size.height *
+                                        .02),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Services().postOrdersStatusDone(
+                                      order[index]['id'],
+                                    );
+                                    Navigator.pop(context);
+                                  },
+                                  style: ButtonStyle(
+                                    side: MaterialStateProperty.all(
+                                      BorderSide(
+                                        color: Colors.white,
+                                        width: 1,
+                                        style: BorderStyle.solid,
+                                      ),
+                                    ),
+                                    elevation: MaterialStatePropertyAll(0),
+                                    backgroundColor: MaterialStatePropertyAll(
+                                        Colors.blue.shade300),
+                                    padding: MaterialStatePropertyAll(
+                                      const EdgeInsets.symmetric(
+                                          horizontal: 62, vertical: 12),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'تم',
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 16),
+                                  ),
+                                ),
                               ],
                             ),
                           );
@@ -448,18 +498,20 @@ class _PreparedOrdersState extends State<PreparedOrders> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasData) {
-                  OrderData order = snapshot.data;
+                  // OrderData order = snapshot.data;
+                  final data = snapshot.data as Map<String, dynamic>;
+                  final order = data['data'] as List<dynamic>;
 
                   return Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     height: MediaQuery.of(context).size.height * 0.735,
                     child: ListView.separated(
-                      itemCount: order.data.length,
+                      itemCount: order.length,
                       separatorBuilder: (context, index) => SizedBox(
                         height: MediaQuery.of(context).size.height * 0.01,
                       ),
                       itemBuilder: (context, index) {
-                        if (order.data[index].status == "ready") {
+                        if (order[index]['status'] == "ready") {
                           return Container(
                             padding: EdgeInsets.all(20),
                             decoration: BoxDecoration(
@@ -476,30 +528,32 @@ class _PreparedOrdersState extends State<PreparedOrders> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                orderRef(Ref: order.data[index].orderRef),
+                                orderRef(Ref: order[index]['order_ref']),
                                 Container(
                                   height: MediaQuery.of(context).size.height *
                                       0.04 *
-                                      order.data[index].products.length,
+                                      order[index]['products'].length,
                                   child: ListView.builder(
                                       physics: NeverScrollableScrollPhysics(),
                                       shrinkWrap: true,
                                       itemCount:
-                                          order.data[index].products.length,
+                                          order[index]['products'].length,
                                       itemBuilder:
                                           (BuildContext context, int ind) {
                                         return orderItems(
-                                            itemName: order
-                                                .data[index].products[ind].name,
-                                            itemPrice: order.data[index]
-                                                .products[ind].price,
-                                            itemquantity: order.data[index]
-                                                .products[ind].quantity,
-                                            note: order
-                                                .data[index].note.allergyInfo);
+                                          itemName: order[index]['products']
+                                              [ind]['name'],
+                                          itemPrice: order[index]['products']
+                                              [ind]['price'],
+                                          itemquantity: order[index]['products']
+                                              [ind]['quantity'],
+                                          // note: order
+                                          //     .data[index].note.allergyInfo,
+                                          note: "",
+                                        );
                                       }),
                                 ),
-                                total(subTotal: order.data[index].subTotal),
+                                total(subTotal: order[index]['store_total']),
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceAround,
@@ -729,18 +783,18 @@ class orderItems extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(
-          height: MediaQuery.of(context).size.height * 0.005,
-        ),
-        note.isNotEmpty
-            ? Text(
-                'ملاحظه : ${note}',
-                style: TextStyle(color: Colors.red.shade200),
-              )
-            : Text(''),
-        SizedBox(
-          height: MediaQuery.of(context).size.height * 0.01,
-        ),
+        // SizedBox(
+        //   height: MediaQuery.of(context).size.height * 0.005,
+        // ),
+        // note.isNotEmpty
+        //     ? Text(
+        //         'ملاحظه : ${note}',
+        //         style: TextStyle(color: Colors.red.shade200),
+        //       )
+        //     : Text(''),
+        // SizedBox(
+        //   height: MediaQuery.of(context).size.height * 0.01,
+        // ),
       ],
     );
   }

@@ -26,7 +26,9 @@ class _LoginState extends State<Login> {
   Future login({payload}) async {
     isloading = false;
     final response = await http.post(
-      Uri.parse('https://api.canariapp.com/v1/partner/merchant/login'),
+      Uri.parse(
+          // 'https://api.canariapp.com/v1/partner/merchant/login'
+          'https://ws.canzitech.com/v1/partner/merchant/login'),
       body: jsonEncode(payload),
       headers: {
         'Content-Type': 'application/json',

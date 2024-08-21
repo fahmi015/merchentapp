@@ -1,7 +1,7 @@
 import 'package:backofficeapp/shared/cached_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import '../Models/MenuItems.dart';
+
 import '../Services/Service.dart';
 
 class Menus extends StatefulWidget {
@@ -19,95 +19,190 @@ class _MenusState extends State<Menus> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          Container(
-            height: MediaQuery.of(context).size.height * 0.92,
-            child: FutureBuilder(
-                future: Services().getMenu(),
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasData) {
-                    MenuData menu = snapshot.data;
-                    print(menu.data.toString());
-                    return ListView.separated(
-                        itemCount: menu.data.length,
-                        separatorBuilder: (context, index) => SizedBox(
-                              height: 10,
-                            ),
+      body: SafeArea(
+        child: Center(
+          child: Column(
+            children: [
+              Container(
+                height: MediaQuery.of(context).size.height * .88,
+                // child: FutureBuilder(
+                //     future: Services().getMenu(),
+                //     builder: (BuildContext context, AsyncSnapshot snapshot) {
+                //       if (snapshot.connectionState == ConnectionState.waiting) {
+                //         return Center(child: CircularProgressIndicator());
+                //       } else if (snapshot.hasData) {
+                //         MenuData menu = snapshot.data;
+                //         print(menu.data.toString());
+                //         return ListView.separated(
+                //             itemCount: menu.data.length,
+                //             separatorBuilder: (context, index) => SizedBox(
+                //                   height: 10,
+                //                 ),
+                //             itemBuilder: (context, index) {
+                //               return Column(
+                //                 children: [
+                //                   if (menu.data[index].products.isNotEmpty)
+                //                     foodCategory(
+                //                         categoryName: menu.data[index].name,
+                //                         categoryId: menu.data[index].id,
+                //                         SwitchVal: menu.data[index].isActive != 1
+                //                             ? SwitchVal = false
+                //                             : SwitchVal = true),
+                //                   Container(
+                //                     margin:
+                //                         const EdgeInsets.symmetric(horizontal: 16),
+                //                     padding: const EdgeInsets.symmetric(
+                //                         horizontal: 16, vertical: 8),
+                //                     decoration: BoxDecoration(
+                //                       color: Colors.white,
+                //                       borderRadius: BorderRadius.circular(5),
+                //                       border: Border.all(
+                //                           color: Colors.grey.shade300, width: 1),
+                //                     ),
+                //                     height: MediaQuery.of(context).size.height *
+                //                         0.08 *
+                //                         menu.data[index].products.length,
+                //                     child: ListView.separated(
+                //                       physics: NeverScrollableScrollPhysics(),
+                //                       itemCount: menu.data[index].products.length,
+                //                       separatorBuilder: (context, ind) => SizedBox(
+                //                         height: MediaQuery.of(context).size.height *
+                //                             0.02,
+                //                       ),
+                //                       itemBuilder: (context, ind) {
+                //                         return Column(
+                //                           children: [
+                //                             // Text('${menu.data[index].products[ind].id}, ${menu.data[index].products[ind].isActive}'),
+                //                             FoodItem(
+                //                                 idMenuItem: menu
+                //                                     .data[index].products[ind].id,
+                //                                 isActive: menu.data[index]
+                //                                     .products[ind].isActive,
+                //                                 ImgPic: menu.data[index]
+                //                                     .products[ind].image,
+                //                                 FoodName: menu.data[index]
+                //                                     .products[ind].name),
+                //                           ],
+                //                         );
+                //                       },
+                //                     ),
+                //                   ),
+                //                 ],
+                //               );
+                //             });
+                //       }
+                //       return Center(
+                //         child: Column(
+                //           children: [
+                //             Icon(
+                //               LucideIcons.archive,
+                //               color: Colors.grey.shade300,
+                //               size: 64,
+                //             ),
+                //             Text(
+                //               'No Data',
+                //               style: TextStyle(
+                //                   color: Colors.grey.shade300, fontSize: 24),
+                //             ),
+                //           ],
+                //         ),
+                //       );
+                //     }),
+
+                child: FutureBuilder(
+                  future: Services().getMenu(),
+                  builder: (BuildContext context, AsyncSnapshot snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(
+                          child: Text('An error occurred: ${snapshot.error}'));
+                    } else if (snapshot.hasData && snapshot.data != null) {
+                      final data = snapshot.data as Map<String, dynamic>;
+                      final menu = data['data'] as List<dynamic>;
+
+                      return ListView.separated(
+                        itemCount: menu.length,
+                        separatorBuilder: (context, index) =>
+                            SizedBox(height: 10),
                         itemBuilder: (context, index) {
-                          return Column(
-                            children: [
-                              if (menu.data[index].products.isNotEmpty)
-                                foodCategory(
-                                    categoryName: menu.data[index].name,
-                                    categoryId: menu.data[index].id,
-                                    SwitchVal: menu.data[index].isActive != 1
-                                        ? SwitchVal = false
-                                        : SwitchVal = true),
-                              Container(
-                                margin:
-                                    const EdgeInsets.symmetric(horizontal: 16),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 8),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(5),
-                                  border: Border.all(
-                                      color: Colors.grey.shade300, width: 1),
-                                ),
-                                height: MediaQuery.of(context).size.height *
-                                    0.08 *
-                                    menu.data[index].products.length,
-                                child: ListView.separated(
-                                  physics: NeverScrollableScrollPhysics(),
-                                  itemCount: menu.data[index].products.length,
-                                  separatorBuilder: (context, ind) => SizedBox(
-                                    height: MediaQuery.of(context).size.height *
-                                        0.02,
+                          final category = menu[index];
+
+                          bool switchVal = category['is_active'] == 1;
+
+                          return Center(
+                            child: Column(
+                              children: [
+                                if (category['products'].isNotEmpty)
+                                  foodCategory(
+                                    categoryName: category['name'],
+                                    categoryId: category['id'],
+                                    SwitchVal: switchVal,
                                   ),
-                                  itemBuilder: (context, ind) {
-                                    return Column(
-                                      children: [
-                                        // Text('${menu.data[index].products[ind].id}, ${menu.data[index].products[ind].isActive}'),
-                                        FoodItem(
-                                            idMenuItem: menu
-                                                .data[index].products[ind].id,
-                                            isActive: menu.data[index]
-                                                .products[ind].isActive,
-                                            ImgPic: menu.data[index]
-                                                .products[ind].image,
-                                            FoodName: menu.data[index]
-                                                .products[ind].name),
-                                      ],
-                                    );
-                                  },
+                                Container(
+                                  margin: const EdgeInsets.symmetric(
+                                      horizontal: 16),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(5),
+                                    border: Border.all(
+                                        color: Colors.grey.shade300, width: 1),
+                                  ),
+                                  height: MediaQuery.of(context).size.height *
+                                      0.09 *
+                                      category['products'].length,
+                                  child: ListView.separated(
+                                    physics: NeverScrollableScrollPhysics(),
+                                    itemCount: category['products'].length,
+                                    separatorBuilder: (context, ind) =>
+                                        SizedBox(
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.02,
+                                    ),
+                                    itemBuilder: (context, ind) {
+                                      final product = category['products'][ind];
+
+                                      return FoodItem(
+                                        idMenuItem: product['id'],
+                                        isActive: product['is_active'],
+                                        ImgPic: product['image'],
+                                        FoodName: product['name'],
+                                      );
+                                    },
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           );
-                        });
-                  }
-                  return Center(
-                    child: Column(
-                      children: [
-                        Icon(
-                          LucideIcons.archive,
-                          color: Colors.grey.shade300,
-                          size: 64,
-                        ),
-                        Text(
-                          'No Data',
-                          style: TextStyle(
-                              color: Colors.grey.shade300, fontSize: 24),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
+                        },
+                      );
+                    }
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            LucideIcons.archive,
+                            color: Colors.grey.shade300,
+                            size: 64,
+                          ),
+                          Text(
+                            'No Data',
+                            style: TextStyle(
+                                color: Colors.grey.shade300, fontSize: 24),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
